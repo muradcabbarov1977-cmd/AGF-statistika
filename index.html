@@ -248,6 +248,168 @@ select.filter-control {
     padding-right: 2.5rem;
 }
 
+/* Checkbox multi-selects for competitions and years */
+.multi-select {
+    position: relative;
+}
+
+.multi-select.is-open {
+    z-index: 1000;
+}
+
+.multi-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-height: 43px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.multi-select-trigger:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
+}
+
+.multi-select-summary {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.multi-select-arrow {
+    color: var(--text-secondary);
+    transition: transform 0.2s ease;
+    flex: 0 0 auto;
+}
+
+.multi-select.is-open .multi-select-arrow {
+    transform: rotate(180deg);
+}
+
+.multi-select-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    left: 0;
+    width: max(100%, 320px);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+    overflow: hidden;
+}
+
+.multi-select.is-open .multi-select-menu {
+    display: block;
+}
+
+.multi-select-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+}
+
+.multi-select-action {
+    border: 0;
+    background: transparent;
+    color: var(--accent);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.25rem;
+}
+
+.multi-select-action:hover,
+.multi-select-action:focus {
+    text-decoration: underline;
+    outline: none;
+}
+
+.multi-select-search-wrap {
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.multi-select-search {
+    width: 100%;
+    padding: 0.5rem 0.625rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    background: var(--card-bg);
+    font: inherit;
+    font-size: 0.84rem;
+    outline: none;
+}
+
+.multi-select-search:focus {
+    border-color: var(--accent);
+}
+
+.multi-select-options {
+    max-height: 260px;
+    overflow-y: auto;
+    padding: 0.35rem;
+}
+
+.multi-option {
+    display: grid !important;
+    grid-template-columns: 18px minmax(0, 1fr);
+    align-items: start !important;
+    gap: 0.55rem !important;
+    padding: 0.5rem 0.55rem;
+    border-radius: 8px;
+    color: var(--text) !important;
+    cursor: pointer;
+    line-height: 1.3;
+}
+
+.multi-option:hover {
+    background: rgba(139, 21, 56, 0.07);
+}
+
+.multi-option input {
+    width: 16px;
+    height: 16px;
+    margin: 0.05rem 0 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.multi-option.is-hidden {
+    display: none !important;
+}
+
+.multi-select-empty {
+    display: none;
+    padding: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+    text-align: center;
+}
+
+.multi-select-empty.is-visible {
+    display: block;
+}
+
+.multi-filter-badge {
+    margin-left: auto;
+    padding: 0.12rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(139, 21, 56, 0.1);
+    color: var(--accent);
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+
 .filter-actions {
     display: flex;
     gap: 0.75rem;
@@ -697,6 +859,10 @@ table.dataTable tbody tr:last-child td:last-child {
         flex: 1;
         justify-content: center;
     }
+    .multi-select-menu {
+        width: 100%;
+        min-width: 0;
+    }
     .table-card {
         padding: 0.75rem;
     }
@@ -934,10 +1100,24 @@ table.dataTable tbody tr:last-child td:last-child {
                 <input type="text" id="filterAthlete" class="filter-control" placeholder="Ad və ya soyad...">
             </div>
             <div class="filter-group">
-                <label><i class="fas fa-trophy"></i> Yarış</label>
-                <select id="filterCompetition" class="filter-control">
-                    <option value="">Bütün yarışlar</option>
-                </select>
+                <label><i class="fas fa-trophy"></i> Yarış <span class="multi-filter-badge">Çox seçim</span></label>
+                <div class="multi-select" id="filterCompetition" data-kind="competition">
+                    <button type="button" class="multi-select-trigger filter-control" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="multi-select-summary">Bütün yarışlar</span>
+                        <i class="fas fa-chevron-down multi-select-arrow" aria-hidden="true"></i>
+                    </button>
+                    <div class="multi-select-menu">
+                        <div class="multi-select-toolbar">
+                            <button type="button" class="multi-select-action" data-action="all">Hamısını seç</button>
+                            <button type="button" class="multi-select-action" data-action="clear">Təmizlə</button>
+                        </div>
+                        <div class="multi-select-search-wrap">
+                            <input type="search" class="multi-select-search" placeholder="Yarış axtar..." aria-label="Yarış axtar">
+                        </div>
+                        <div class="multi-select-options" role="listbox" aria-multiselectable="true"></div>
+                        <div class="multi-select-empty">Uyğun yarış tapılmadı</div>
+                    </div>
+                </div>
             </div>
             <div class="filter-group">
                 <label><i class="fas fa-award"></i> Yer</label>
@@ -946,10 +1126,24 @@ table.dataTable tbody tr:last-child td:last-child {
                 </select>
             </div>
             <div class="filter-group">
-                <label><i class="fas fa-calendar"></i> İl</label>
-                <select id="filterYear" class="filter-control">
-                    <option value="">Bütün illər</option>
-                </select>
+                <label><i class="fas fa-calendar"></i> İl <span class="multi-filter-badge">Çox seçim</span></label>
+                <div class="multi-select" id="filterYear" data-kind="year">
+                    <button type="button" class="multi-select-trigger filter-control" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="multi-select-summary">Bütün illər</span>
+                        <i class="fas fa-chevron-down multi-select-arrow" aria-hidden="true"></i>
+                    </button>
+                    <div class="multi-select-menu">
+                        <div class="multi-select-toolbar">
+                            <button type="button" class="multi-select-action" data-action="all">Hamısını seç</button>
+                            <button type="button" class="multi-select-action" data-action="clear">Təmizlə</button>
+                        </div>
+                        <div class="multi-select-search-wrap">
+                            <input type="search" class="multi-select-search" placeholder="İl axtar..." aria-label="İl axtar">
+                        </div>
+                        <div class="multi-select-options" role="listbox" aria-multiselectable="true"></div>
+                        <div class="multi-select-empty">Uyğun il tapılmadı</div>
+                    </div>
+                </div>
             </div>
             <div class="filter-group">
                 <label><i class="fas fa-wrestling"></i> Güləş növü</label>
@@ -1064,7 +1258,141 @@ function getPlaceLabel(place) {
     return place.toString();
 }
 
-// Populate filter dropdowns
+const multiSelectControllers = {};
+let multiFilterApplyTimer;
+
+function closeAllMultiSelects(exceptRoot = null) {
+    document.querySelectorAll('.multi-select.is-open').forEach(root => {
+        if (root === exceptRoot) return;
+        root.classList.remove('is-open');
+        root.querySelector('.multi-select-trigger').setAttribute('aria-expanded', 'false');
+    });
+}
+
+function scheduleMultiFilterApply() {
+    clearTimeout(multiFilterApplyTimer);
+    multiFilterApplyTimer = setTimeout(() => {
+        if (table) applyFilters();
+    }, 80);
+}
+
+function createCheckboxMultiSelect(rootId, values, config) {
+    const root = document.getElementById(rootId);
+    const trigger = root.querySelector('.multi-select-trigger');
+    const summary = root.querySelector('.multi-select-summary');
+    const optionsContainer = root.querySelector('.multi-select-options');
+    const search = root.querySelector('.multi-select-search');
+    const empty = root.querySelector('.multi-select-empty');
+    const optionsId = rootId + 'Options';
+
+    optionsContainer.id = optionsId;
+    trigger.setAttribute('aria-controls', optionsId);
+
+    values.forEach((rawValue, index) => {
+        const value = String(rawValue);
+        const option = document.createElement('label');
+        const checkbox = document.createElement('input');
+        const text = document.createElement('span');
+
+        option.className = 'multi-option';
+        option.setAttribute('role', 'option');
+        option.setAttribute('aria-selected', 'false');
+        option.dataset.searchValue = value.toLocaleLowerCase('az');
+
+        checkbox.type = 'checkbox';
+        checkbox.value = value;
+        checkbox.id = rootId + 'Option' + index;
+        checkbox.addEventListener('change', () => {
+            option.setAttribute('aria-selected', String(checkbox.checked));
+            updateSummary();
+            scheduleMultiFilterApply();
+        });
+
+        text.textContent = value;
+        option.append(checkbox, text);
+        optionsContainer.appendChild(option);
+    });
+
+    function checkboxes() {
+        return [...optionsContainer.querySelectorAll('input[type="checkbox"]')];
+    }
+
+    function selectedValues() {
+        return checkboxes().filter(input => input.checked).map(input => input.value);
+    }
+
+    function updateSummary() {
+        const selected = selectedValues();
+        if (selected.length === 0 || selected.length === values.length) {
+            summary.textContent = config.allLabel;
+            trigger.title = config.allLabel;
+        } else if (selected.length === 1) {
+            summary.textContent = selected[0];
+            trigger.title = selected[0];
+        } else {
+            summary.textContent = selected.length + ' ' + config.countLabel;
+            trigger.title = selected.join(', ');
+        }
+    }
+
+    function setAll(checked, apply = true) {
+        checkboxes().forEach(input => {
+            input.checked = checked;
+            input.closest('.multi-option').setAttribute('aria-selected', String(checked));
+        });
+        updateSummary();
+        if (apply) scheduleMultiFilterApply();
+    }
+
+    function reset(apply = true) {
+        search.value = '';
+        optionsContainer.querySelectorAll('.multi-option').forEach(option => {
+            option.classList.remove('is-hidden');
+        });
+        empty.classList.remove('is-visible');
+        setAll(false, apply);
+    }
+
+    trigger.addEventListener('click', () => {
+        const willOpen = !root.classList.contains('is-open');
+        closeAllMultiSelects(root);
+        root.classList.toggle('is-open', willOpen);
+        trigger.setAttribute('aria-expanded', String(willOpen));
+        if (willOpen && search) search.focus();
+    });
+
+    root.querySelector('[data-action="all"]').addEventListener('click', () => setAll(true));
+    root.querySelector('[data-action="clear"]').addEventListener('click', () => setAll(false));
+
+    search.addEventListener('input', () => {
+        const query = search.value.trim().toLocaleLowerCase('az');
+        let visibleCount = 0;
+        optionsContainer.querySelectorAll('.multi-option').forEach(option => {
+            const visible = !query || option.dataset.searchValue.includes(query);
+            option.classList.toggle('is-hidden', !visible);
+            if (visible) visibleCount += 1;
+        });
+        empty.classList.toggle('is-visible', visibleCount === 0);
+    });
+
+    updateSummary();
+    return {
+        getSelected: () => new Set(selectedValues()),
+        clear: (apply = true) => setAll(false, apply),
+        selectAll: (apply = true) => setAll(true, apply),
+        reset
+    };
+}
+
+document.addEventListener('click', event => {
+    if (!event.target.closest('.multi-select')) closeAllMultiSelects();
+});
+
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeAllMultiSelects();
+});
+
+// Populate filter controls
 function populateFilters() {
     const competitions = [...new Set(wrestlingData.map(d => d.yarış))].sort();
     const places = [...new Set(wrestlingData.map(d => d.yer))].sort((a,b) => a-b);
@@ -1074,12 +1402,9 @@ function populateFilters() {
     const weights = [...new Set(wrestlingData.map(d => d.çəki).filter(w => w !== ""))].sort((a,b) => a-b);
     const locations = [...new Set(wrestlingData.map(d => d.yer_kecirme))].sort();
 
-    const compSel = document.getElementById('filterCompetition');
-    competitions.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c;
-        opt.textContent = c;
-        compSel.appendChild(opt);
+    multiSelectControllers.competition = createCheckboxMultiSelect('filterCompetition', competitions, {
+        allLabel: 'Bütün yarışlar',
+        countLabel: 'yarış seçilib'
     });
 
     const placeSel = document.getElementById('filterPlace');
@@ -1123,12 +1448,9 @@ function populateFilters() {
         placeSel.appendChild(opt);
     });
 
-    const yearSel = document.getElementById('filterYear');
-    years.forEach(y => {
-        const opt = document.createElement('option');
-        opt.value = y;
-        opt.textContent = y;
-        yearSel.appendChild(opt);
+    multiSelectControllers.year = createCheckboxMultiSelect('filterYear', years, {
+        allLabel: 'Bütün illər',
+        countLabel: 'il seçilib'
     });
 
     const typeSel = document.getElementById('filterWrestlingType');
@@ -1174,7 +1496,7 @@ function updateStats() {
 // Initialize DataTable
 let table;
 const filterState = {
-    athlete: '', competition: '', place: '', year: '',
+    athlete: '', competition: new Set(), place: '', year: new Set(),
     wrestlingType: '', ageGroup: '', weight: '', location: ''
 };
 
@@ -1186,9 +1508,9 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex, sourceRow) {
     if (!row) return true;
 
     if (filterState.athlete && !row._athleteSearch.includes(filterState.athlete)) return false;
-    if (filterState.competition && row.yarış !== filterState.competition) return false;
+    if (filterState.competition.size && !filterState.competition.has(row.yarış)) return false;
     if (filterState.place && row._placeFilter !== filterState.place) return false;
-    if (filterState.year && row._yearFilter !== filterState.year) return false;
+    if (filterState.year.size && !filterState.year.has(row._yearFilter)) return false;
     if (filterState.wrestlingType && row.güləş_növü !== filterState.wrestlingType) return false;
     if (filterState.ageGroup && row.yaş_qrupu !== filterState.ageGroup) return false;
     if (filterState.weight && row._weightFilter !== filterState.weight) return false;
@@ -1290,9 +1612,9 @@ function initTable() {
 
 function applyFilters() {
     filterState.athlete = String($('#filterAthlete').val() || '').trim().toLocaleLowerCase('az');
-    filterState.competition = String($('#filterCompetition').val() || '');
+    filterState.competition = multiSelectControllers.competition.getSelected();
     filterState.place = String($('#filterPlace').val() || '');
-    filterState.year = String($('#filterYear').val() || '');
+    filterState.year = multiSelectControllers.year.getSelected();
     filterState.wrestlingType = String($('#filterWrestlingType').val() || '');
     filterState.ageGroup = String($('#filterAgeGroup').val() || '');
     filterState.weight = String($('#filterWeight').val() || '');
@@ -1303,16 +1625,25 @@ function applyFilters() {
 }
 
 function clearFilters() {
+    clearTimeout(multiFilterApplyTimer);
     $('#filterAthlete').val('');
-    $('#filterCompetition').val('');
     $('#filterPlace').val('');
-    $('#filterYear').val('');
     $('#filterWrestlingType').val('');
     $('#filterAgeGroup').val('');
     $('#filterWeight').val('');
     $('#filterLocation').val('');
 
-    Object.keys(filterState).forEach(key => { filterState[key] = ''; });
+    multiSelectControllers.competition.reset(false);
+    multiSelectControllers.year.reset(false);
+    filterState.athlete = '';
+    filterState.competition = new Set();
+    filterState.place = '';
+    filterState.year = new Set();
+    filterState.wrestlingType = '';
+    filterState.ageGroup = '';
+    filterState.weight = '';
+    filterState.location = '';
+    closeAllMultiSelects();
     table.search('').order([[0, 'asc']]).draw();
 }
 
