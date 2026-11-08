@@ -570,18 +570,21 @@ select.filter-control {
 /* Table Styling */
 table.dataTable {
     width: 100% !important;
+    table-layout: fixed !important;
     border-collapse: separate;
     border-spacing: 0;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
 }
 
 table.dataTable thead th {
     background: var(--primary) !important;
     color: white !important;
     font-weight: 600 !important;
-    padding: 0.875rem 1rem !important;
+    padding: 0.75rem 0.5rem !important;
     border: none !important;
-    white-space: nowrap;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    line-height: 1.2;
     position: relative;
     cursor: pointer;
     transition: background 0.2s;
@@ -622,9 +625,31 @@ table.dataTable thead th.sorting_desc::after {
 }
 
 table.dataTable tbody td {
-    padding: 0.75rem 1rem !important;
+    padding: 0.625rem 0.5rem !important;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    line-height: 1.25;
+}
+
+/* Fit all nine visible columns inside the viewport. */
+#resultsTable th:nth-child(1), #resultsTable td:nth-child(1) { width: 4% !important; }
+#resultsTable th:nth-child(2), #resultsTable td:nth-child(2) { width: 9% !important; }
+#resultsTable th:nth-child(3), #resultsTable td:nth-child(3) { width: 12% !important; }
+#resultsTable th:nth-child(4), #resultsTable td:nth-child(4) { width: 15% !important; }
+#resultsTable th:nth-child(5), #resultsTable td:nth-child(5) { width: 22% !important; }
+#resultsTable th:nth-child(6), #resultsTable td:nth-child(6) { width: 14% !important; }
+#resultsTable th:nth-child(7), #resultsTable td:nth-child(7) { width: 11% !important; }
+#resultsTable th:nth-child(8), #resultsTable td:nth-child(8) { width: 7% !important; }
+#resultsTable th:nth-child(9), #resultsTable td:nth-child(9) { width: 6% !important; }
+
+#resultsTable th:nth-child(1), #resultsTable td:nth-child(1),
+#resultsTable th:nth-child(2), #resultsTable td:nth-child(2),
+#resultsTable th:nth-child(8), #resultsTable td:nth-child(8),
+#resultsTable th:nth-child(9), #resultsTable td:nth-child(9) {
+    white-space: nowrap !important;
 }
 
 table.dataTable tbody tr {
@@ -707,7 +732,10 @@ table.dataTable tbody tr:last-child td:last-child {
     border-radius: 6px;
     font-size: 0.8125rem;
     font-weight: 500;
-    white-space: nowrap;
+    white-space: normal;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    line-height: 1.2;
 }
 
 .tag-wrestling-freestyle {
@@ -748,20 +776,26 @@ table.dataTable tbody tr:last-child td:last-child {
 
 /* Athlete name */
 .athlete-name {
+    display: block;
     font-weight: 600;
     color: var(--primary);
+    overflow-wrap: anywhere;
 }
 
 /* Competition name */
 .competition-name {
+    display: block;
     color: var(--text);
+    overflow-wrap: anywhere;
 }
 
 /* Location */
 .location-cell {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    min-width: 0;
     color: var(--text-secondary);
     font-size: 0.875rem;
 }
@@ -801,8 +835,7 @@ table.dataTable tbody tr:last-child td:last-child {
 /* Table responsive wrapper */
 .table-responsive-wrap {
     width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
     border-radius: 10px;
 }
 .table-responsive-wrap::-webkit-scrollbar {
@@ -820,8 +853,10 @@ table.dataTable tbody tr:last-child td:last-child {
 @media (max-width: 768px) {
     table.dataTable thead th,
     table.dataTable tbody td {
-        padding: 0.5rem 0.625rem !important;
-        font-size: 0.8125rem !important;
+        padding: 0.375rem 0.2rem !important;
+        font-size: 0.6875rem !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere;
     }
     .place-badge {
         min-width: 26px;
@@ -829,8 +864,8 @@ table.dataTable tbody tr:last-child td:last-child {
         font-size: 0.75rem;
     }
     .tag {
-        padding: 0.15rem 0.5rem;
-        font-size: 0.75rem;
+        padding: 0.1rem 0.25rem;
+        font-size: 0.6875rem;
     }
     .athlete-name {
         font-size: 0.875rem;
@@ -840,7 +875,13 @@ table.dataTable tbody tr:last-child td:last-child {
     }
     .location-cell,
     .date-cell {
-        font-size: 0.75rem;
+        font-size: 0.6875rem;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+    .location-cell i,
+    .date-cell i {
+        display: none;
     }
     .container {
         padding: 0.75rem;
@@ -896,6 +937,72 @@ table.dataTable tbody tr:last-child td:last-child {
     .dataTables_paginate {
         text-align: center !important;
         float: none !important;
+    }
+
+    /* On narrow screens each result becomes a readable two-column card. */
+    #resultsTable,
+    #resultsTable tbody {
+        display: block;
+        width: 100% !important;
+    }
+    #resultsTable thead {
+        display: none;
+    }
+    #resultsTable tbody tr {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-bottom: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    #resultsTable tbody td:nth-child(n) {
+        display: block;
+        width: auto !important;
+        min-width: 0;
+        padding: 0.5rem 0.625rem !important;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.8125rem !important;
+        text-align: left !important;
+        white-space: normal !important;
+        background: transparent;
+    }
+    #resultsTable tbody td::before {
+        display: block;
+        margin-bottom: 0.2rem;
+        color: var(--text-secondary);
+        font-size: 0.625rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+    }
+    #resultsTable tbody td:nth-child(1)::before { content: '№'; }
+    #resultsTable tbody td:nth-child(2)::before { content: 'Tarix'; }
+    #resultsTable tbody td:nth-child(3)::before { content: 'Keçirilmə yeri'; }
+    #resultsTable tbody td:nth-child(4)::before { content: 'İdmançı'; }
+    #resultsTable tbody td:nth-child(5)::before { content: 'Yarışın adı'; }
+    #resultsTable tbody td:nth-child(6)::before { content: 'Güləş növü'; }
+    #resultsTable tbody td:nth-child(7)::before { content: 'Yaş qrupu'; }
+    #resultsTable tbody td:nth-child(8)::before { content: 'Çəki'; }
+    #resultsTable tbody td:nth-child(9)::before { content: 'Yer'; }
+    #resultsTable tbody td:nth-child(3),
+    #resultsTable tbody td:nth-child(4),
+    #resultsTable tbody td:nth-child(5) {
+        grid-column: 1 / -1;
+    }
+    #resultsTable tbody td:nth-child(5) {
+        background: rgba(139, 21, 56, 0.035);
+    }
+    #resultsTable tbody td:nth-child(8),
+    #resultsTable tbody td:nth-child(9) {
+        border-bottom: 0;
+    }
+    #resultsTable tbody td:nth-child(10) {
+        display: none !important;
+    }
+    #resultsTable .location-cell,
+    #resultsTable .date-cell {
+        display: block;
     }
 }
 
@@ -1189,7 +1296,7 @@ table.dataTable tbody tr:last-child td:last-child {
             </div>
         </div>
         <div class="table-responsive-wrap">
-            <table id="resultsTable" class="display nowrap" style="width:100%">
+            <table id="resultsTable" class="display" style="width:100%">
                 <thead>
                 <tr>
                     <th>№</th>
@@ -1536,44 +1643,43 @@ function initTable() {
     table = $('#resultsTable').DataTable({
         data: tableData,
         responsive: false,
-        scrollX: true,
-        scrollCollapse: true,
+        scrollX: false,
         autoWidth: false,
         pageLength: 25,
         deferRender: true,
         searchDelay: 250,
         lengthMenu: [[10, 25, 50, 100, 250, 500, 1000], [10, 25, 50, 100, 250, 500, 1000]],
         columns: [
-            { data: 'index', title: '№', orderable: false, className: 'dt-center dt-body-center', width: '40px' },
-            { data: 'tarix', title: 'Tarix', width: '100px', orderData: [9], render: function(data, type) {
+            { data: 'index', title: '№', orderable: false, className: 'dt-center dt-body-center' },
+            { data: 'tarix', title: 'Tarix', orderData: [9], render: function(data, type) {
                 if (type !== 'display') return data;
                 return '<span class="date-cell"><i class="far fa-calendar-alt" style="margin-right:6px;color:var(--accent);"></i>' + escapeHtml(data) + '</span>';
             }},
-            { data: 'yer_kecirme', title: 'Keçirilmə yeri', width: '120px', render: function(data, type) {
+            { data: 'yer_kecirme', title: 'Keçirilmə yeri', render: function(data, type) {
                 if (type !== 'display') return data;
                 return '<span class="location-cell"><i class="fas fa-map-marker-alt"></i>' + escapeHtml(data) + '</span>';
             }},
-            { data: 'idmançı', title: 'İdmançı', width: '140px', render: function(data, type) {
+            { data: 'idmançı', title: 'İdmançı', render: function(data, type) {
                 if (type !== 'display') return data;
                 return '<span class="athlete-name">' + escapeHtml(data) + '</span>';
             }},
-            { data: 'yarış', title: 'Yarışın adı', width: '180px', render: function(data, type) {
+            { data: 'yarış', title: 'Yarışın adı', render: function(data, type) {
                 if (type !== 'display') return data;
                 return '<span class="competition-name">' + escapeHtml(data) + '</span>';
             }},
-            { data: 'güləş_növü', title: 'Güləş növü', width: '110px', render: function(data, type) {
+            { data: 'güləş_növü', title: 'Güləş növü', render: function(data, type) {
                 if (type !== 'display') return data;
                 return '<span class="tag ' + getWrestlingTagClass(data) + '">' + escapeHtml(data) + '</span>';
             }},
-            { data: 'yaş_qrupu', title: 'Yaş qrupu', width: '80px', render: function(data, type) {
+            { data: 'yaş_qrupu', title: 'Yaş qrupu', render: function(data, type) {
                 if (type !== 'display') return data;
                 return '<span class="tag tag-age">' + escapeHtml(data) + '</span>';
             }},
-            { data: 'çəki', title: 'Çəki', width: '60px', render: function(data, type) {
+            { data: 'çəki', title: 'Çəki', render: function(data, type) {
                 if (type !== 'display') return data;
                 return data ? '<span class="tag tag-weight">' + escapeHtml(data) + ' kq</span>' : '-';
             }},
-            { data: 'yer', title: 'Yer', width: '50px', render: function(data, type) {
+            { data: 'yer', title: 'Yer', render: function(data, type) {
                 if (type !== 'display') return data;
                 return '<span class="place-badge ' + getPlaceBadgeClass(data) + '">' + escapeHtml(getPlaceLabel(data)) + '</span>';
             }},
