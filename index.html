@@ -248,7 +248,7 @@ select.filter-control {
     padding-right: 2.5rem;
 }
 
-/* Checkbox multi-selects for competitions and years */
+/* Shared checkbox multi-select controls */
 .multi-select {
     position: relative;
 }
@@ -453,6 +453,24 @@ select.filter-control {
     background: #d1d5db;
 }
 
+.btn-excel {
+    background: #167c45;
+    color: white;
+}
+
+.btn-excel:hover {
+    background: #126a3a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(22, 124, 69, 0.28);
+}
+
+.btn-excel:disabled {
+    cursor: wait;
+    opacity: 0.72;
+    transform: none;
+    box-shadow: none;
+}
+
 /* Table Card */
 .table-card {
     background: var(--card-bg);
@@ -487,6 +505,13 @@ select.filter-control {
     font-size: 1.125rem;
     font-weight: 600;
     color: var(--primary);
+}
+
+.table-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
 /* DataTables Custom Styling */
@@ -1065,6 +1090,15 @@ table.dataTable tbody tr:last-child td:last-child {
         flex-direction: column;
         align-items: flex-start;
     }
+
+    .table-header-actions,
+    .table-header-actions .btn {
+        width: 100%;
+    }
+
+    .table-header-actions .btn {
+        justify-content: center;
+    }
     
     .dataTables_length,
     .dataTables_filter {
@@ -1154,6 +1188,8 @@ table.dataTable tbody tr:last-child td:last-child {
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <!-- DataTables -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<!-- Local SheetJS build for Excel export -->
+<script src="xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -1227,10 +1263,24 @@ table.dataTable tbody tr:last-child td:last-child {
                 </div>
             </div>
             <div class="filter-group">
-                <label><i class="fas fa-award"></i> Yer</label>
-                <select id="filterPlace" class="filter-control">
-                    <option value="">Bütün yerlər</option>
-                </select>
+                <label><i class="fas fa-award"></i> Yer <span class="multi-filter-badge">Çox seçim</span></label>
+                <div class="multi-select" id="filterPlace" data-kind="place">
+                    <button type="button" class="multi-select-trigger filter-control" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="multi-select-summary">Bütün yerlər</span>
+                        <i class="fas fa-chevron-down multi-select-arrow" aria-hidden="true"></i>
+                    </button>
+                    <div class="multi-select-menu">
+                        <div class="multi-select-toolbar">
+                            <button type="button" class="multi-select-action" data-action="all">Hamısını seç</button>
+                            <button type="button" class="multi-select-action" data-action="clear">Təmizlə</button>
+                        </div>
+                        <div class="multi-select-search-wrap">
+                            <input type="search" class="multi-select-search" placeholder="Yer axtar..." aria-label="Yer axtar">
+                        </div>
+                        <div class="multi-select-options" role="listbox" aria-multiselectable="true"></div>
+                        <div class="multi-select-empty">Uyğun yer tapılmadı</div>
+                    </div>
+                </div>
             </div>
             <div class="filter-group">
                 <label><i class="fas fa-calendar"></i> İl <span class="multi-filter-badge">Çox seçim</span></label>
@@ -1259,16 +1309,44 @@ table.dataTable tbody tr:last-child td:last-child {
                 </select>
             </div>
             <div class="filter-group">
-                <label><i class="fas fa-users"></i> Yaş qrupu</label>
-                <select id="filterAgeGroup" class="filter-control">
-                    <option value="">Bütün qruplar</option>
-                </select>
+                <label><i class="fas fa-users"></i> Yaş qrupu <span class="multi-filter-badge">Çox seçim</span></label>
+                <div class="multi-select" id="filterAgeGroup" data-kind="ageGroup">
+                    <button type="button" class="multi-select-trigger filter-control" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="multi-select-summary">Bütün qruplar</span>
+                        <i class="fas fa-chevron-down multi-select-arrow" aria-hidden="true"></i>
+                    </button>
+                    <div class="multi-select-menu">
+                        <div class="multi-select-toolbar">
+                            <button type="button" class="multi-select-action" data-action="all">Hamısını seç</button>
+                            <button type="button" class="multi-select-action" data-action="clear">Təmizlə</button>
+                        </div>
+                        <div class="multi-select-search-wrap">
+                            <input type="search" class="multi-select-search" placeholder="Yaş qrupu axtar..." aria-label="Yaş qrupu axtar">
+                        </div>
+                        <div class="multi-select-options" role="listbox" aria-multiselectable="true"></div>
+                        <div class="multi-select-empty">Uyğun yaş qrupu tapılmadı</div>
+                    </div>
+                </div>
             </div>
             <div class="filter-group">
-                <label><i class="fas fa-weight-hanging"></i> Çəki kateqoriyası</label>
-                <select id="filterWeight" class="filter-control">
-                    <option value="">Bütün çəkilər</option>
-                </select>
+                <label><i class="fas fa-weight-hanging"></i> Çəki kateqoriyası <span class="multi-filter-badge">Çox seçim</span></label>
+                <div class="multi-select" id="filterWeight" data-kind="weight">
+                    <button type="button" class="multi-select-trigger filter-control" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="multi-select-summary">Bütün çəkilər</span>
+                        <i class="fas fa-chevron-down multi-select-arrow" aria-hidden="true"></i>
+                    </button>
+                    <div class="multi-select-menu">
+                        <div class="multi-select-toolbar">
+                            <button type="button" class="multi-select-action" data-action="all">Hamısını seç</button>
+                            <button type="button" class="multi-select-action" data-action="clear">Təmizlə</button>
+                        </div>
+                        <div class="multi-select-search-wrap">
+                            <input type="search" class="multi-select-search" placeholder="Çəki axtar..." aria-label="Çəki axtar">
+                        </div>
+                        <div class="multi-select-options" role="listbox" aria-multiselectable="true"></div>
+                        <div class="multi-select-empty">Uyğun çəki tapılmadı</div>
+                    </div>
+                </div>
             </div>
             <div class="filter-group">
                 <label><i class="fas fa-map-marker-alt"></i> Keçirilmə yeri</label>
@@ -1293,6 +1371,12 @@ table.dataTable tbody tr:last-child td:last-child {
             <div class="table-title">
                 <i class="fas fa-list-ol"></i>
                 <h3>Nəticələr siyahısı</h3>
+            </div>
+            <div class="table-header-actions">
+                <button type="button" id="exportExcelButton" class="btn btn-excel" onclick="exportFilteredToExcel()" title="Cari filtr və axtarış nəticələrini Excel faylına ixrac et">
+                    <i class="fas fa-file-excel" aria-hidden="true"></i>
+                    <span>Excel-ə ixrac</span>
+                </button>
             </div>
         </div>
         <div class="table-responsive-wrap">
@@ -1365,6 +1449,70 @@ function getPlaceLabel(place) {
     return place.toString();
 }
 
+function getPlaceFilterLabel(value) {
+    const p = Number(value);
+    if (p === 0) return 'İştirakçı';
+    if (p === 1) return '1-ci yer (Qızıl)';
+    if (p === 2) return '2-ci yer (Gümüş)';
+    if (p === 3) return '3-cü yer (Bürünc)';
+
+    const lastDigit = p % 10;
+    const lastTwoDigits = p % 100;
+    let suffix;
+    if ([1, 5, 8, 15, 25, 35, 55, 75, 85, 95].includes(lastTwoDigits)) suffix = 'ci';
+    else if ([2, 7, 20, 30, 40, 50, 60, 70, 80, 90].some(d => lastTwoDigits === d || lastTwoDigits % 10 === d % 10)) suffix = 'ci';
+    else if ([3, 4].includes(lastDigit)) suffix = 'cü';
+    else if ([6, 9, 0].includes(lastDigit)) suffix = 'cı';
+    else if (lastDigit === 1 && p !== 1) suffix = 'ci';
+    else suffix = 'cu';
+    if ([1, 2, 5, 7, 8].includes(lastDigit) && ![10, 20, 30, 40, 50, 60, 70, 80, 90].includes(lastTwoDigits)) suffix = 'ci';
+    else if ([3, 4].includes(lastDigit)) suffix = 'cü';
+    else suffix = 'cı';
+    if (lastTwoDigits >= 10 && lastTwoDigits <= 99 && [10, 20, 30, 40, 50, 60, 70, 80, 90].includes(lastTwoDigits)) suffix = 'cu';
+    const properSuffix = {
+        4: 'cü', 6: 'cı', 9: 'cu', 10: 'cu',
+        11: 'ci', 12: 'ci', 13: 'cü', 14: 'cü', 15: 'ci', 16: 'cı', 17: 'ci', 18: 'ci', 19: 'cu',
+        20: 'ci', 21: 'ci', 22: 'ci', 23: 'cü', 24: 'cü', 25: 'ci', 26: 'cı', 27: 'ci', 28: 'ci', 29: 'cu',
+        30: 'cu', 31: 'ci', 32: 'ci', 33: 'cü', 34: 'cü', 35: 'ci', 36: 'cı',
+        40: 'cı', 41: 'ci', 42: 'ci', 43: 'cü', 44: 'cü', 45: 'ci', 46: 'cı',
+        50: 'ci', 51: 'ci', 52: 'ci', 53: 'cü', 54: 'cü', 55: 'ci', 56: 'cı'
+    };
+    suffix = properSuffix[p] || (lastDigit <= 2 || lastDigit === 5 || lastDigit === 7 || lastDigit === 8 ? 'ci' : lastDigit === 3 || lastDigit === 4 ? 'cü' : 'cı');
+    return p + '-' + suffix + ' yer';
+}
+
+const EMPTY_WEIGHT_FILTER_KEY = '__EMPTY_WEIGHT__';
+
+function getWeightFilterKey(value) {
+    const text = String(value ?? '').trim();
+    if (!text) return EMPTY_WEIGHT_FILTER_KEY;
+    const normalized = text.toLocaleLowerCase('en');
+    if (normalized === 'team') return 'Team';
+    if (normalized === 'team event') return 'Team event';
+    return text;
+}
+
+function getWeightFilterLabel(value) {
+    const key = String(value);
+    if (key === EMPTY_WEIGHT_FILTER_KEY) return 'Çəki göstərilməyib';
+    if (key === 'Team') return 'Komanda';
+    if (key === 'Team event') return 'Komanda yarışı';
+    return key + ' kq';
+}
+
+function compareWeightFilterValues(a, b) {
+    if (a === EMPTY_WEIGHT_FILTER_KEY) return 1;
+    if (b === EMPTY_WEIGHT_FILTER_KEY) return -1;
+    const numberA = Number(a);
+    const numberB = Number(b);
+    const isNumberA = Number.isFinite(numberA);
+    const isNumberB = Number.isFinite(numberB);
+    if (isNumberA && isNumberB) return numberA - numberB;
+    if (isNumberA) return -1;
+    if (isNumberB) return 1;
+    return String(a).localeCompare(String(b), 'az', { sensitivity: 'base' });
+}
+
 const multiSelectControllers = {};
 let multiFilterApplyTimer;
 
@@ -1397,6 +1545,7 @@ function createCheckboxMultiSelect(rootId, values, config) {
 
     values.forEach((rawValue, index) => {
         const value = String(rawValue);
+        const displayValue = config.formatLabel ? String(config.formatLabel(rawValue)) : value;
         const option = document.createElement('label');
         const checkbox = document.createElement('input');
         const text = document.createElement('span');
@@ -1404,10 +1553,11 @@ function createCheckboxMultiSelect(rootId, values, config) {
         option.className = 'multi-option';
         option.setAttribute('role', 'option');
         option.setAttribute('aria-selected', 'false');
-        option.dataset.searchValue = value.toLocaleLowerCase('az');
+        option.dataset.searchValue = (value + ' ' + displayValue).toLocaleLowerCase('az');
 
         checkbox.type = 'checkbox';
         checkbox.value = value;
+        checkbox.dataset.label = displayValue;
         checkbox.id = rootId + 'Option' + index;
         checkbox.addEventListener('change', () => {
             option.setAttribute('aria-selected', String(checkbox.checked));
@@ -1415,7 +1565,7 @@ function createCheckboxMultiSelect(rootId, values, config) {
             scheduleMultiFilterApply();
         });
 
-        text.textContent = value;
+        text.textContent = displayValue;
         option.append(checkbox, text);
         optionsContainer.appendChild(option);
     });
@@ -1430,15 +1580,18 @@ function createCheckboxMultiSelect(rootId, values, config) {
 
     function updateSummary() {
         const selected = selectedValues();
+        const selectedLabels = checkboxes()
+            .filter(input => input.checked)
+            .map(input => input.dataset.label || input.value);
         if (selected.length === 0 || selected.length === values.length) {
             summary.textContent = config.allLabel;
             trigger.title = config.allLabel;
         } else if (selected.length === 1) {
-            summary.textContent = selected[0];
-            trigger.title = selected[0];
+            summary.textContent = selectedLabels[0];
+            trigger.title = selectedLabels[0];
         } else {
             summary.textContent = selected.length + ' ' + config.countLabel;
-            trigger.title = selected.join(', ');
+            trigger.title = selectedLabels.join(', ');
         }
     }
 
@@ -1506,7 +1659,7 @@ function populateFilters() {
     const years = [...new Set(wrestlingData.map(d => d.il))].sort((a,b) => a-b);
     const types = [...new Set(wrestlingData.map(d => d.güləş_növü))].sort();
     const ageGroups = [...new Set(wrestlingData.map(d => d.yaş_qrupu))].sort();
-    const weights = [...new Set(wrestlingData.map(d => d.çəki).filter(w => w !== ""))].sort((a,b) => a-b);
+    const weights = [...new Set(wrestlingData.map(d => getWeightFilterKey(d.çəki)))].sort(compareWeightFilterValues);
     const locations = [...new Set(wrestlingData.map(d => d.yer_kecirme))].sort();
 
     multiSelectControllers.competition = createCheckboxMultiSelect('filterCompetition', competitions, {
@@ -1514,45 +1667,10 @@ function populateFilters() {
         countLabel: 'yarış seçilib'
     });
 
-    const placeSel = document.getElementById('filterPlace');
-    places.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p;
-        if (p === 0) opt.textContent = 'İştirakçı';
-        else if (p === 1) opt.textContent = '1-ci yer (Qızıl)';
-        else if (p === 2) opt.textContent = '2-ci yer (Gümüş)';
-        else if (p === 3) opt.textContent = '3-cü yer (Bürünc)';
-        else {
-            // Azerbaijani ordinal suffixes
-            const lastDigit = p % 10;
-            const lastTwoDigits = p % 100;
-            let suffix;
-            if ([1, 5, 8, 15, 25, 35, 55, 75, 85, 95].includes(lastTwoDigits)) suffix = 'ci';
-            else if ([2, 7, 20, 30, 40, 50, 60, 70, 80, 90].some(d => lastTwoDigits === d || lastTwoDigits % 10 === d % 10)) suffix = 'ci';
-            else if ([3, 4].includes(lastDigit)) suffix = 'cü';
-            else if ([6, 9, 0].includes(lastDigit)) suffix = 'cı';
-            else if (lastDigit === 1 && p !== 1) suffix = 'ci';
-            else suffix = 'cu';
-            // Simplified approach for cleaner code
-            if ([1,2,5,7,8].includes(lastDigit) && ![10,20,30,40,50,60,70,80,90].includes(lastTwoDigits)) suffix = 'ci';
-            else if ([3,4].includes(lastDigit)) suffix = 'cü';
-            else suffix = 'cı';
-            if (lastTwoDigits >= 10 && lastTwoDigits <= 99) {
-                if ([10,20,30,40,50,60,70,80,90].includes(lastTwoDigits)) suffix = 'cu';
-            }
-            // Override with proper Azerbaijani ordinals for common numbers
-            const properSuffix = {
-                4: 'cü', 6: 'cı', 9: 'cu', 10: 'cu',
-                11: 'ci', 12: 'ci', 13: 'cü', 14: 'cü', 15: 'ci', 16: 'cı', 17: 'ci', 18: 'ci', 19: 'cu',
-                20: 'ci', 21: 'ci', 22: 'ci', 23: 'cü', 24: 'cü', 25: 'ci', 26: 'cı', 27: 'ci', 28: 'ci', 29: 'cu',
-                30: 'cu', 31: 'ci', 32: 'ci', 33: 'cü', 34: 'cü', 35: 'ci', 36: 'cı',
-                40: 'cı', 41: 'ci', 42: 'ci', 43: 'cü', 44: 'cü', 45: 'ci', 46: 'cı',
-                50: 'ci', 51: 'ci', 52: 'ci', 53: 'cü', 54: 'cü', 55: 'ci', 56: 'cı'
-            };
-            suffix = properSuffix[p] || (lastDigit <= 2 || lastDigit === 5 || lastDigit === 7 || lastDigit === 8 ? 'ci' : lastDigit === 3 || lastDigit === 4 ? 'cü' : 'cı');
-            opt.textContent = p + '-' + suffix + ' yer';
-        }
-        placeSel.appendChild(opt);
+    multiSelectControllers.place = createCheckboxMultiSelect('filterPlace', places, {
+        allLabel: 'Bütün yerlər',
+        countLabel: 'yer seçilib',
+        formatLabel: getPlaceFilterLabel
     });
 
     multiSelectControllers.year = createCheckboxMultiSelect('filterYear', years, {
@@ -1568,20 +1686,15 @@ function populateFilters() {
         typeSel.appendChild(opt);
     });
 
-    const ageSel = document.getElementById('filterAgeGroup');
-    ageGroups.forEach(a => {
-        const opt = document.createElement('option');
-        opt.value = a;
-        opt.textContent = a;
-        ageSel.appendChild(opt);
+    multiSelectControllers.ageGroup = createCheckboxMultiSelect('filterAgeGroup', ageGroups, {
+        allLabel: 'Bütün qruplar',
+        countLabel: 'yaş qrupu seçilib'
     });
 
-    const weightSel = document.getElementById('filterWeight');
-    weights.forEach(w => {
-        const opt = document.createElement('option');
-        opt.value = w;
-        opt.textContent = w + ' kq';
-        weightSel.appendChild(opt);
+    multiSelectControllers.weight = createCheckboxMultiSelect('filterWeight', weights, {
+        allLabel: 'Bütün çəkilər',
+        countLabel: 'çəki seçilib',
+        formatLabel: getWeightFilterLabel
     });
 
     const locSel = document.getElementById('filterLocation');
@@ -1603,8 +1716,8 @@ function updateStats() {
 // Initialize DataTable
 let table;
 const filterState = {
-    athlete: '', competition: new Set(), place: '', year: new Set(),
-    wrestlingType: '', ageGroup: '', weight: '', location: ''
+    athlete: '', competition: new Set(), place: new Set(), year: new Set(),
+    wrestlingType: '', ageGroup: new Set(), weight: new Set(), location: ''
 };
 
 // Register one reusable predicate. DataTables passes the source row as the
@@ -1616,11 +1729,11 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex, sourceRow) {
 
     if (filterState.athlete && !row._athleteSearch.includes(filterState.athlete)) return false;
     if (filterState.competition.size && !filterState.competition.has(row.yarış)) return false;
-    if (filterState.place && row._placeFilter !== filterState.place) return false;
+    if (filterState.place.size && !filterState.place.has(row._placeFilter)) return false;
     if (filterState.year.size && !filterState.year.has(row._yearFilter)) return false;
     if (filterState.wrestlingType && row.güləş_növü !== filterState.wrestlingType) return false;
-    if (filterState.ageGroup && row.yaş_qrupu !== filterState.ageGroup) return false;
-    if (filterState.weight && row._weightFilter !== filterState.weight) return false;
+    if (filterState.ageGroup.size && !filterState.ageGroup.has(row.yaş_qrupu)) return false;
+    if (filterState.weight.size && !filterState.weight.has(row._weightFilter)) return false;
     if (filterState.location && row.yer_kecirme !== filterState.location) return false;
     return true;
 });
@@ -1636,7 +1749,7 @@ function initTable() {
             _athleteSearch: String(row.idmançı || '').toLocaleLowerCase('az'),
             _placeFilter: String(row.yer ?? ''),
             _yearFilter: String(row.il ?? ''),
-            _weightFilter: String(row.çəki ?? '')
+            _weightFilter: getWeightFilterKey(row.çəki)
         };
     });
 
@@ -1716,14 +1829,115 @@ function initTable() {
 
 }
 
+function parseExcelDate(value) {
+    const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(String(value || ''));
+    if (!match) return String(value || '');
+    return new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]), 12, 0, 0);
+}
+
+function buildExportFileName() {
+    const now = new Date();
+    const pad = value => String(value).padStart(2, '0');
+    const stamp = [
+        now.getFullYear(),
+        pad(now.getMonth() + 1),
+        pad(now.getDate())
+    ].join('-') + '_' + pad(now.getHours()) + pad(now.getMinutes());
+    return 'AGF_filtrlenmis_neticeler_' + stamp + '.xlsx';
+}
+
+async function exportFilteredToExcel() {
+    const button = document.getElementById('exportExcelButton');
+    const originalContent = button ? button.innerHTML : '';
+
+    if (!table) {
+        window.alert('Cədvəl hələ hazır deyil. Bir neçə saniyə sonra yenidən cəhd edin.');
+        return;
+    }
+    if (typeof XLSX === 'undefined') {
+        window.alert('Excel ixrac modulu yüklənmədi. xlsx.full.min.js faylının proqram qovluğunda olduğunu yoxlayın.');
+        return;
+    }
+
+    clearTimeout(multiFilterApplyTimer);
+    applyFilters();
+
+    const rows = table.rows({
+        search: 'applied',
+        order: 'applied',
+        page: 'all'
+    }).data().toArray();
+
+    if (!rows.length) {
+        window.alert('Excel-ə ixrac etmək üçün uyğun məlumat yoxdur. Filtrləri dəyişin və yenidən cəhd edin.');
+        return;
+    }
+
+    try {
+        if (button) {
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i><span>Hazırlanır...</span>';
+        }
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        const exportRows = rows.map(row => [
+            row.index,
+            parseExcelDate(row.tarix),
+            row.yer_kecirme || '',
+            row.idmançı || '',
+            row.yarış || '',
+            row.güləş_növü || '',
+            row.yaş_qrupu || '',
+            row.çəki ?? '',
+            row.yer === 0 ? 'İştirakçı' : (row.yer ?? '')
+        ]);
+        const worksheet = XLSX.utils.aoa_to_sheet([
+            ['№', 'Tarix', 'Keçirilmə yeri', 'İdmançı', 'Yarışın adı', 'Güləş növü', 'Yaş qrupu', 'Çəki (kq)', 'Yer'],
+            ...exportRows
+        ], { cellDates: true });
+
+        worksheet['!cols'] = [
+            { wch: 8 }, { wch: 12 }, { wch: 24 }, { wch: 30 }, { wch: 44 },
+            { wch: 22 }, { wch: 24 }, { wch: 12 }, { wch: 12 }
+        ];
+        worksheet['!autofilter'] = { ref: 'A1:I' + (exportRows.length + 1) };
+        for (let rowNumber = 2; rowNumber <= exportRows.length + 1; rowNumber += 1) {
+            const dateCell = worksheet['B' + rowNumber];
+            if (dateCell && dateCell.t === 'd') dateCell.z = 'dd.mm.yyyy';
+        }
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Nəticələr');
+        workbook.Props = {
+            Title: 'AGF filtr edilmiş nəticələr',
+            Subject: 'Azərbaycan Güləş Federasiyası idmançı nəticələri',
+            Author: 'Azərbaycan Güləş Federasiyası',
+            CreatedDate: new Date()
+        };
+        XLSX.writeFile(workbook, buildExportFileName(), {
+            bookType: 'xlsx',
+            compression: true,
+            cellDates: true
+        });
+    } catch (error) {
+        console.error('Excel export failed:', error);
+        window.alert('Excel faylı yaradıla bilmədi. Səhifəni yeniləyib təkrar cəhd edin.');
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        }
+    }
+}
+
 function applyFilters() {
     filterState.athlete = String($('#filterAthlete').val() || '').trim().toLocaleLowerCase('az');
     filterState.competition = multiSelectControllers.competition.getSelected();
-    filterState.place = String($('#filterPlace').val() || '');
+    filterState.place = multiSelectControllers.place.getSelected();
     filterState.year = multiSelectControllers.year.getSelected();
     filterState.wrestlingType = String($('#filterWrestlingType').val() || '');
-    filterState.ageGroup = String($('#filterAgeGroup').val() || '');
-    filterState.weight = String($('#filterWeight').val() || '');
+    filterState.ageGroup = multiSelectControllers.ageGroup.getSelected();
+    filterState.weight = multiSelectControllers.weight.getSelected();
     filterState.location = String($('#filterLocation').val() || '');
 
     // One scan and one redraw. The previous version redrew the full table twice.
@@ -1733,21 +1947,21 @@ function applyFilters() {
 function clearFilters() {
     clearTimeout(multiFilterApplyTimer);
     $('#filterAthlete').val('');
-    $('#filterPlace').val('');
     $('#filterWrestlingType').val('');
-    $('#filterAgeGroup').val('');
-    $('#filterWeight').val('');
     $('#filterLocation').val('');
 
     multiSelectControllers.competition.reset(false);
+    multiSelectControllers.place.reset(false);
     multiSelectControllers.year.reset(false);
+    multiSelectControllers.ageGroup.reset(false);
+    multiSelectControllers.weight.reset(false);
     filterState.athlete = '';
     filterState.competition = new Set();
-    filterState.place = '';
+    filterState.place = new Set();
     filterState.year = new Set();
     filterState.wrestlingType = '';
-    filterState.ageGroup = '';
-    filterState.weight = '';
+    filterState.ageGroup = new Set();
+    filterState.weight = new Set();
     filterState.location = '';
     closeAllMultiSelects();
     table.search('').order([[0, 'asc']]).draw();
